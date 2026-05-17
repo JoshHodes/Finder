@@ -107,10 +107,18 @@ Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips sc
       });
     }
 
-    // 4. Insert all detected items
-    const itemRows = items.map((name) => ({
-      location_id: location.id,
-      name: name,
+    // 4. Generate embeddings and insert all detected items
+    const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-2" });
+    const itemRows = await Promise.all(items.map(async (name) => {
+      const result = await embeddingModel.embedContent({
+        content: { parts: [{ text: name }] },
+        outputDimensionality: 768
+      });
+      return {
+        location_id: location.id,
+        name: name,
+        embedding: result.embedding.values,
+      };
     }));
 
     const { data: savedItems, error: itemsError } = await supabase
@@ -119,6 +127,7 @@ Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips sc
       .select();
 
     if (itemsError) {
+      console.error("Supabase insert error:", itemsError);
       return res.status(500).json({
         error: "Failed to save items",
         details: itemsError.message,

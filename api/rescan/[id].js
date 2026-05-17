@@ -120,9 +120,17 @@ Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips sc
     // 6. Delete old items and insert new ones
     await supabase.from("items").delete().eq("location_id", locationId);
 
-    const itemRows = items.map((name) => ({
-      location_id: locationId,
-      name: name,
+    const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-2" });
+    const itemRows = await Promise.all(items.map(async (name) => {
+      const result = await embeddingModel.embedContent({
+        content: { parts: [{ text: name }] },
+        outputDimensionality: 768
+      });
+      return {
+        location_id: locationId,
+        name: name,
+        embedding: result.embedding.values,
+      };
     }));
 
     const { data: savedItems, error: itemsError } = await supabase

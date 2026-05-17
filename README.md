@@ -7,8 +7,8 @@ Built with React, Gemini 2.5 Flash, and Supabase.
 ## How it works
 
 1. **Add a location** — take a photo of a drawer or shelf and give it a name
-2. **AI analysis** — Gemini Vision identifies every item in the photo
-3. **Search** — type what you're looking for and see which location has it
+2. **AI analysis** — Gemini Vision identifies every item in the photo and generates vector embeddings for each item
+3. **Semantic search** — search for categories, synonyms, or exact items, and see which location has it using vector similarity
 
 ## Setup
 
@@ -29,7 +29,7 @@ npm install
 ### 2. Set up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to the **SQL Editor** and run the contents of `supabase-setup.sql`
+2. Go to the **SQL Editor** and run the contents of `supabase-setup.sql` first, followed by `supabase-semantic-search.sql` to enable pgvector
 3. Go to **Storage** → create a new **public** bucket called `location-photos`
 
 ### 3. Configure environment variables
@@ -64,8 +64,8 @@ This starts both the Vite frontend and the local API server. Open [http://localh
 |---|---|
 | Frontend | React (Vite) |
 | API | Express (local) / Vercel Serverless (production) |
-| AI | Gemini 2.5 Flash |
-| Database | Supabase (PostgreSQL) |
+| AI | Gemini 2.5 Flash & Gemini Embedding 2 |
+| Database | Supabase (PostgreSQL with pgvector) |
 | Storage | Supabase Storage |
 
 ## Project structure
@@ -75,7 +75,7 @@ This starts both the Vite frontend and the local API server. Open [http://localh
 │   ├── analyze.js          Photo analysis + save
 │   ├── locations.js        List all locations
 │   ├── location/[id].js    Get/delete a location
-│   └── search.js           Fuzzy item search
+│   └── search.js           Semantic vector search
 ├── src/
 │   ├── components/         Reusable UI components
 │   ├── pages/              Route pages
@@ -83,7 +83,8 @@ This starts both the Vite frontend and the local API server. Open [http://localh
 │   ├── App.jsx             Router
 │   └── App.css             Styles
 ├── server.js               Local dev API server
-├── supabase-setup.sql      Database schema
+├── supabase-setup.sql      Base database schema
+├── supabase-semantic-search.sql AI vector embeddings & search RPC
 └── vercel.json             Production deploy config
 ```
 
