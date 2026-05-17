@@ -48,31 +48,30 @@ function AddLocation() {
   return (
     <div className="page">
       <a className="back-link" href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>
-        ← Back to home
+        &larr; Back
       </a>
       <h1 className="page-title">Add a location</h1>
       <p className="page-subtitle">
-        Photograph a drawer, shelf, or box — AI will identify everything inside.
+        Upload a photo of a drawer, shelf, or box. AI will identify every item inside.
       </p>
 
       {analyzing && (
         <div className="analyzing-overlay">
           <div className="spinner"></div>
-          <p>Analyzing your photo...</p>
+          <p>Analyzing photo...</p>
           <span className="analyzing-sub">
-            AI is identifying every item it can see
+            Identifying items in view
           </span>
         </div>
       )}
 
       {result ? (
-        /* Success view */
         <div className="analysis-result">
           <h3>
-            ✅ Saved — {result.items.length} items detected
+            Saved &mdash; {result.items.length} items detected
           </h3>
           <ItemList items={result.items} />
-          <div style={{ marginTop: 20, display: "flex", gap: 12 }}>
+          <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
             <button
               className="btn btn-primary"
               onClick={() => navigate(`/location/${result.location.id}`)}
@@ -95,7 +94,6 @@ function AddLocation() {
           </div>
         </div>
       ) : (
-        /* Form */
         <form className="add-location-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Photo</label>
@@ -107,7 +105,7 @@ function AddLocation() {
 
           <div className="form-group">
             <label className="form-label" htmlFor="location-name-input">
-              Location Name
+              Location name
             </label>
             <input
               id="location-name-input"
@@ -135,7 +133,7 @@ function AddLocation() {
           </div>
 
           {error && (
-            <div className="status-message error">❌ {error}</div>
+            <div className="status-message error">{error}</div>
           )}
 
           <button
@@ -144,7 +142,7 @@ function AddLocation() {
             disabled={!photo || !locationName.trim() || analyzing}
             id="analyze-submit-btn"
           >
-            {analyzing ? "Analyzing..." : "📸 Analyze & Save"}
+            {analyzing ? "Analyzing..." : "Analyze & Save"}
           </button>
         </form>
       )}

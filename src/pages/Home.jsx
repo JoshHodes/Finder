@@ -10,7 +10,6 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
-  // Load all locations on mount
   useEffect(() => {
     fetchLocations();
   }, []);
@@ -18,8 +17,14 @@ function Home() {
   async function fetchLocations() {
     try {
       const res = await fetch("/api/locations");
+      if (!res.ok) {
+        console.error("API error:", res.status);
+        return;
+      }
       const data = await res.json();
-      setLocations(data);
+      if (Array.isArray(data)) {
+        setLocations(data);
+      }
     } catch (err) {
       console.error("Failed to fetch locations:", err);
     } finally {
@@ -49,14 +54,13 @@ function Home() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Find anything</h1>
+      <h1 className="page-title">Your locations</h1>
       <p className="page-subtitle">
         Search across all your saved locations to find what you need.
       </p>
 
       <SearchBar onSearch={handleSearch} />
 
-      {/* Search Results */}
       {searchResults && (
         <div className="search-results">
           <div className="search-results-header">
@@ -64,9 +68,7 @@ function Home() {
               "Searching..."
             ) : searchResults.resultCount > 0 ? (
               <>
-                Found {searchResults.resultCount} match
-                {searchResults.resultCount !== 1 ? "es" : ""} for &quot;
-                {searchResults.query}&quot;
+                {searchResults.resultCount} result{searchResults.resultCount !== 1 ? "s" : ""} for &quot;{searchResults.query}&quot;
               </>
             ) : (
               <>No results for &quot;{searchResults.query}&quot;</>
@@ -94,24 +96,28 @@ function Home() {
         </div>
       )}
 
-      {/* All Locations */}
       {!searchResults && (
         <>
           {loading ? (
             <div className="loading-container">
               <div className="spinner"></div>
-              <p>Loading locations...</p>
+              <p>Loading...</p>
             </div>
           ) : locations.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📸</div>
+              <div className="empty-icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
               <h3>No locations yet</h3>
               <p>
-                Start by photographing a drawer, shelf, or box and labelling
-                where it is.
+                Take a photo of a drawer, shelf, or box and let AI identify
+                everything inside.
               </p>
               <Link to="/add" className="btn btn-primary" style={{ marginTop: 20 }}>
-                + Add your first location
+                Add your first location
               </Link>
             </div>
           ) : (

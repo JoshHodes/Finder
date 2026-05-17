@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  const { id } = req.query;
+  const id = req.params?.id || req.query?.id;
 
   if (!id) {
     return res.status(400).json({ error: "Missing location ID" });
