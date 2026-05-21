@@ -563,6 +563,112 @@ a:hover {
 }
 
 /* ==========================================
+   Typeahead Suggestions
+   ========================================== */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 200;
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  animation: fadeIn 0.1s ease;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border-bottom: 1px solid var(--border);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.suggestion-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.suggestion-icon svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================
+   Category Sections
+   ========================================== */
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.category-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.category-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.category-count {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* ==========================================
    Search Results
    ========================================== */
 .search-results {

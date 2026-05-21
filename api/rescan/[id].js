@@ -7,6 +7,15 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+function extractItemArray(text) {
+  const start = text.indexOf("[");
+  const end = text.lastIndexOf("]");
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error("No JSON array found in response");
+  }
+  return JSON.parse(text.slice(start, end + 1));
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -38,16 +47,23 @@ export default async function handler(req, res) {
 
     const result = await model.generateContent([
       {
-        text: `You are an item identification assistant. Look at this photo of a storage location (drawer, shelf, box, etc.) and list every distinct item you can see.
+        text: `You are an item identification assistant. Look at this photo of a storage location (drawer, shelf, box, etc.) and identify every distinct item you can see.
+
+Return ONLY a valid JSON array. Each element must be an object with exactly two keys:
+- "name": a concise, specific item name (e.g. "blue scissors", "AA batteries", "roll of tape")
+- "category": choose exactly one from: Tools, Electronics, Stationery, Kitchen, Cleaning, Clothing, Toiletries, Food & Drink, Cables & Chargers, Batteries & Power, Toys, Books, Miscellaneous
 
 Rules:
-- Return ONLY a valid JSON array of strings
-- Each string should be a concise but specific item name (e.g. "blue scissors", "AA batteries", "roll of tape")
 - Include every visible item, even partially hidden ones
-- Do not include the container itself
-- No explanations, just the JSON array
+- Do not include the container itself (the drawer, shelf, box)
+- No explanations, markdown, or extra text — only the JSON array
 
-Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips screwdriver"]`,
+Example output:
+[
+  {"name": "blue scissors", "category": "Stationery"},
+  {"name": "roll of tape", "category": "Stationery"},
+  {"name": "Phillips screwdriver", "category": "Tools"}
+]`,
       },
       {
         inlineData: {
@@ -61,11 +77,7 @@ Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips sc
 
     let items;
     try {
-      const cleaned = responseText
-        .replace(/```json\s*/g, "")
-        .replace(/```\s*/g, "")
-        .trim();
-      items = JSON.parse(cleaned);
+      items = extractItemArray(responseText);
     } catch {
       return res.status(500).json({
         error: "Failed to parse AI response",
@@ -121,15 +133,18 @@ Example output: ["blue scissors", "roll of tape", "3 AA batteries", "Phillips sc
     await supabase.from("items").delete().eq("location_id", locationId);
 
     const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-2" });
-    const itemRows = await Promise.all(items.map(async (name) => {
-      const result = await embeddingModel.embedContent({
+    const itemRows = await Promise.all(items.map(async (item) => {
+      const name = typeof item === "string" ? item : item.name;
+      const category = typeof item === "object" ? (item.category || null) : null;
+      const embResult = await embeddingModel.embedContent({
         content: { parts: [{ text: name }] },
         outputDimensionality: 768
       });
       return {
         location_id: locationId,
-        name: name,
-        embedding: result.embedding.values,
+        name,
+        category,
+        embedding: embResult.embedding.values,
       };
     }));
 

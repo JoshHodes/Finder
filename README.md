@@ -1,5 +1,7 @@
 # Finder
 
+**[finder-yxzt.vercel.app](https://finder-yxzt.vercel.app/)**
+
 A web app that helps you find things around the house. Photograph your drawers, shelves, and boxes — AI identifies every item inside. Then search for anything and instantly see where it is.
 
 Built with React, Gemini 2.5 Flash, and Supabase.
@@ -7,8 +9,9 @@ Built with React, Gemini 2.5 Flash, and Supabase.
 ## How it works
 
 1. **Add a location** — take a photo of a drawer or shelf and give it a name
-2. **AI analysis** — Gemini Vision identifies every item in the photo and generates vector embeddings for each item
-3. **Semantic search** — search for categories, synonyms, or exact items, and see which location has it using vector similarity
+2. **AI analysis** — Gemini Vision identifies every item in the photo, assigns each a category, and generates vector embeddings for semantic retrieval
+3. **Typeahead search** — as you type, suggestions are drawn from your own item collection using PostgreSQL trigram similarity
+4. **Semantic search** — search by synonym, concept, or exact name; results ranked by vector cosine similarity against per-item embeddings
 
 ## Setup
 
@@ -29,7 +32,10 @@ npm install
 ### 2. Set up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to the **SQL Editor** and run the contents of `supabase-setup.sql` first, followed by `supabase-semantic-search.sql` to enable pgvector
+2. Go to the **SQL Editor** and run the three SQL files in order:
+   - `supabase-setup.sql` — base schema and RLS
+   - `supabase-semantic-search.sql` — pgvector extension and similarity search RPC
+   - `supabase-categories.sql` — category column and typeahead suggestion RPC
 3. Go to **Storage** → create a new **public** bucket called `location-photos`
 
 ### 3. Configure environment variables
@@ -85,6 +91,7 @@ This starts both the Vite frontend and the local API server. Open [http://localh
 ├── server.js               Local dev API server
 ├── supabase-setup.sql      Base database schema
 ├── supabase-semantic-search.sql AI vector embeddings & search RPC
+├── supabase-categories.sql Item categories & typeahead suggestion RPC
 └── vercel.json             Production deploy config
 ```
 

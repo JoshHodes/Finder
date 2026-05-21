@@ -30,6 +30,11 @@ app.get('/api/search', async (req, res) => {
   await handler(req, res);
 });
 
+app.get('/api/suggest', async (req, res) => {
+  const { default: handler } = await import(`./api/suggest.js${bust()}`);
+  await handler(req, res);
+});
+
 app.get('/api/location/:id', async (req, res) => {
   const { default: handler } = await import(`./api/location/[id].js${bust()}`);
   await handler(req, res);
@@ -43,6 +48,15 @@ app.delete('/api/location/:id', async (req, res) => {
 app.post('/api/rescan/:id', async (req, res) => {
   const { default: handler } = await import(`./api/rescan/[id].js${bust()}`);
   await handler(req, res);
+});
+
+// Global error handler — ensures every uncaught error returns JSON, never HTML
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
+  console.error(`[${req.method} ${req.path}]`, err);
+  if (!res.headersSent) {
+    res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  }
 });
 
 const PORT = 3001;

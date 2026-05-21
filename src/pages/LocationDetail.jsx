@@ -3,6 +3,84 @@ import { useParams, useNavigate } from "react-router-dom";
 import ItemList from "../components/ItemList";
 import PhotoCapture from "../components/PhotoCapture";
 
+function CategoryIcon({ category }) {
+  const shared = {
+    width: 13,
+    height: 13,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true",
+  };
+  switch (category) {
+    case "Tools":
+      return <svg {...shared}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>;
+    case "Electronics":
+      return <svg {...shared}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+    case "Stationery":
+      return <svg {...shared}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+    case "Kitchen":
+      return <svg {...shared}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="2" x2="7" y2="22"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+    case "Cleaning":
+      return <svg {...shared}><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .963L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>;
+    case "Clothing":
+      return <svg {...shared}><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>;
+    case "Toiletries":
+      return <svg {...shared}><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>;
+    case "Food & Drink":
+      return <svg {...shared}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
+    case "Cables & Chargers":
+      return <svg {...shared}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
+    case "Batteries & Power":
+      return <svg {...shared}><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>;
+    case "Toys":
+      return <svg {...shared}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+    case "Books":
+      return <svg {...shared}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+    default:
+      return <svg {...shared}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>;
+  }
+}
+
+function ItemsByCategory({ items }) {
+  const hasCategoryData = items.some((item) => item.category);
+
+  if (!hasCategoryData) {
+    return <ItemList items={items} />;
+  }
+
+  const grouped = {};
+  for (const item of items) {
+    const cat = item.category || "Miscellaneous";
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(item);
+  }
+
+  const categories = Object.keys(grouped).sort((a, b) => {
+    if (a === "Miscellaneous") return 1;
+    if (b === "Miscellaneous") return -1;
+    return grouped[b].length - grouped[a].length;
+  });
+
+  return (
+    <div className="categories-list">
+      {categories.map((cat) => (
+        <div key={cat} className="category-section">
+          <div className="category-header">
+            <span className="category-icon"><CategoryIcon category={cat} /></span>
+            <span className="category-label">{cat}</span>
+            <span className="category-count">{grouped[cat].length}</span>
+          </div>
+          <ItemList items={grouped[cat]} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function LocationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -61,7 +139,13 @@ function LocationDetail() {
         }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Server error (${res.status})`);
+      }
       if (!res.ok) throw new Error(data.error || "Rescan failed");
 
       // Update the local state with new data
@@ -187,7 +271,7 @@ function LocationDetail() {
       <div className="detail-section">
         <h2>Detected items</h2>
         {location.items && location.items.length > 0 ? (
-          <ItemList items={location.items} />
+          <ItemsByCategory items={location.items} />
         ) : (
           <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
             No items were detected in this photo.
