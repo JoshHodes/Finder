@@ -36,6 +36,7 @@ npm install
    - `supabase-setup.sql` — base schema and RLS
    - `supabase-semantic-search.sql` — pgvector extension and similarity search RPC
    - `supabase-categories.sql` — category column and typeahead suggestion RPC
+   - `supabase-bounding-boxes.sql` — bounding box column and updated match_items RPC
 3. Go to **Storage** → create a new **public** bucket called `location-photos`
 
 ### 3. Configure environment variables
@@ -92,6 +93,7 @@ This starts both the Vite frontend and the local API server. Open [http://localh
 ├── supabase-setup.sql      Base database schema
 ├── supabase-semantic-search.sql AI vector embeddings & search RPC
 ├── supabase-categories.sql Item categories & typeahead suggestion RPC
+├── supabase-bounding-boxes.sql Spatial bounding boxes & updated search RPC
 └── vercel.json             Production deploy config
 ```
 

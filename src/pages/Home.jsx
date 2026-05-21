@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import LocationCard from "../components/LocationCard";
 import ItemList from "../components/ItemList";
+import ImageWithHighlights from "../components/ImageWithHighlights";
 
 function Home() {
   const [locations, setLocations] = useState([]);
@@ -82,10 +83,11 @@ function Home() {
               key={loc.id}
               id={`search-result-${loc.id}`}
             >
-              <img
-                className="search-result-image"
+              <ImageWithHighlights
                 src={loc.photoUrl}
                 alt={loc.name}
+                className="search-result-image"
+                highlightedItems={loc.matchedItems.slice(0, 1)}
               />
               <div className="search-result-info">
                 <div className="search-result-name">{loc.name}</div>

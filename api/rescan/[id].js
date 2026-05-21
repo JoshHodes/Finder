@@ -16,6 +16,25 @@ function extractItemArray(text) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
+const ITEM_DETECTION_PROMPT = `You are an item identification assistant. Look at this photo of a storage location (drawer, shelf, box, etc.) and identify every distinct item you can see.
+
+Return ONLY a valid JSON array. Each element must be an object with exactly three keys:
+- "name": a concise, specific item name (e.g. "blue scissors", "AA batteries", "roll of tape")
+- "category": choose exactly one from: Tools, Electronics, Stationery, Kitchen, Cleaning, Clothing, Toiletries, Food & Drink, Cables & Chargers, Batteries & Power, Toys, Books, Miscellaneous
+- "box": bounding box as {"ymin": int, "xmin": int, "ymax": int, "xmax": int} using a 0–1000 scale where (0, 0) is the top-left corner and (1000, 1000) is the bottom-right corner
+
+Rules:
+- Include every visible item, even partially hidden ones
+- Do not include the container itself (the drawer, shelf, box)
+- No explanations, markdown, or extra text — only the JSON array
+
+Example output:
+[
+  {"name": "blue scissors", "category": "Stationery", "box": {"ymin": 120, "xmin": 340, "ymax": 280, "xmax": 520}},
+  {"name": "roll of tape", "category": "Stationery", "box": {"ymin": 300, "xmin": 100, "ymax": 420, "xmax": 220}},
+  {"name": "Phillips screwdriver", "category": "Tools", "box": {"ymin": 50, "xmin": 600, "ymax": 180, "xmax": 720}}
+]`;
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -46,25 +65,7 @@ export default async function handler(req, res) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const result = await model.generateContent([
-      {
-        text: `You are an item identification assistant. Look at this photo of a storage location (drawer, shelf, box, etc.) and identify every distinct item you can see.
-
-Return ONLY a valid JSON array. Each element must be an object with exactly two keys:
-- "name": a concise, specific item name (e.g. "blue scissors", "AA batteries", "roll of tape")
-- "category": choose exactly one from: Tools, Electronics, Stationery, Kitchen, Cleaning, Clothing, Toiletries, Food & Drink, Cables & Chargers, Batteries & Power, Toys, Books, Miscellaneous
-
-Rules:
-- Include every visible item, even partially hidden ones
-- Do not include the container itself (the drawer, shelf, box)
-- No explanations, markdown, or extra text — only the JSON array
-
-Example output:
-[
-  {"name": "blue scissors", "category": "Stationery"},
-  {"name": "roll of tape", "category": "Stationery"},
-  {"name": "Phillips screwdriver", "category": "Tools"}
-]`,
-      },
+      { text: ITEM_DETECTION_PROMPT },
       {
         inlineData: {
           data: photoBase64,
@@ -136,6 +137,7 @@ Example output:
     const itemRows = await Promise.all(items.map(async (item) => {
       const name = typeof item === "string" ? item : item.name;
       const category = typeof item === "object" ? (item.category || null) : null;
+      const box = typeof item === "object" ? (item.box || null) : null;
       const embResult = await embeddingModel.embedContent({
         content: { parts: [{ text: name }] },
         outputDimensionality: 768
@@ -144,6 +146,7 @@ Example output:
         location_id: locationId,
         name,
         category,
+        box,
         embedding: embResult.embedding.values,
       };
     }));

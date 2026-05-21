@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ItemList from "../components/ItemList";
 import PhotoCapture from "../components/PhotoCapture";
+import ImageWithHighlights from "../components/ImageWithHighlights";
 
 function CategoryIcon({ category }) {
   const shared = {
@@ -45,11 +46,11 @@ function CategoryIcon({ category }) {
   }
 }
 
-function ItemsByCategory({ items }) {
+function ItemsByCategory({ items, onItemHover = null }) {
   const hasCategoryData = items.some((item) => item.category);
 
   if (!hasCategoryData) {
-    return <ItemList items={items} />;
+    return <ItemList items={items} onItemHover={onItemHover} />;
   }
 
   const grouped = {};
@@ -74,7 +75,7 @@ function ItemsByCategory({ items }) {
             <span className="category-label">{cat}</span>
             <span className="category-count">{grouped[cat].length}</span>
           </div>
-          <ItemList items={grouped[cat]} />
+          <ItemList items={grouped[cat]} onItemHover={onItemHover} />
         </div>
       ))}
     </div>
@@ -91,6 +92,7 @@ function LocationDetail() {
   const [showRescan, setShowRescan] = useState(false);
   const [rescanPhoto, setRescanPhoto] = useState(null);
   const [error, setError] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   useEffect(() => {
     fetchLocation();
@@ -262,16 +264,17 @@ function LocationDetail() {
         </div>
       )}
 
-      <img
-        className="detail-photo"
+      <ImageWithHighlights
         src={location.photoUrl}
         alt={location.name}
+        className="detail-photo"
+        highlightedItems={hoveredItem ? [hoveredItem] : []}
       />
 
       <div className="detail-section">
         <h2>Detected items</h2>
         {location.items && location.items.length > 0 ? (
-          <ItemsByCategory items={location.items} />
+          <ItemsByCategory items={location.items} onItemHover={setHoveredItem} />
         ) : (
           <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
             No items were detected in this photo.

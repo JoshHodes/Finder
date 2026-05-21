@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     // 2. Perform vector similarity search using RPC
     const { data: matchedItems, error } = await supabase.rpc("match_items", {
       query_embedding: queryEmbedding,
-      match_threshold: 0.5,
+      match_threshold: 0.65,
       match_count: 50,
     });
 
@@ -90,7 +90,8 @@ export default async function handler(req, res) {
       locationMap.get(loc.id).matchedItems.push({
         id: item.id,
         name: item.name,
-        similarity: item.similarity // Keep it around if useful later
+        similarity: item.similarity,
+        box: item.box || null,
       });
     }
 
